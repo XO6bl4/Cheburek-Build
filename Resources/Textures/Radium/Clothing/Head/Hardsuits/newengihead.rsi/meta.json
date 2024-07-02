@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "license": "NC-BY-SA-3.0",
+  "copyright": "Свободное использование и свободная модификация покуда указаны авторы (SentryPrimis & McDonaldsObamaBurger) и это не коммерческий проект.4",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "icon"
+    },
+    {
+      "name": "icon-flash"
+    },
+    {
+      "name": "off-equipped-HELMET",
+      "directions": 4
+    },
+    {
+      "name": "on-equipped-HELMET",
+      "directions": 4
+    }
+  ]
+}
