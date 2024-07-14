@@ -1,6 +1,6 @@
 using Content.Shared.Radium.Nanites.Systems;
 using Content.Shared.Radio;
-using Content.Shared.Nanites;
+using Content.Shared.Radium.Nanites;
 using Robust.Shared.Prototypes;
 
 namespace Content.Shared.Radium.Nanites.Components;
@@ -10,7 +10,7 @@ namespace Content.Shared.Radium.Nanites.Components;
 /// </summary>
 [RegisterComponent]
 [Access(typeof(SharedNProgramInstallerConsoleSystem))]
-public sealed partial class CriminalRecordsConsoleComponent : Component
+public sealed partial class NProgramInstallerConsoleComponent : Component
 {
     /// <summary>
     /// Currently active station record key.
@@ -35,7 +35,7 @@ public sealed partial class CriminalRecordsConsoleComponent : Component
     /// Channel to send messages to when someone's status gets changed.
     /// </summary>
     [DataField]
-    public ProtoId<RadioChannelPrototype> SecurityChannel = "Security";
+    public ProtoId<RadioChannelPrototype> ScienceChannel = "Science";
 
     /// <summary>
     /// Max length of arrest and crime history strings.
