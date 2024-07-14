@@ -6,7 +6,7 @@ using Robust.Shared.Serialization;
 namespace Content.Shared.Radium.Nanites;
 
 [Serializable, NetSerializable]
-public enum NProgramInstallConsoleKey : byte
+public enum NProgramInstallerConsoleKey : byte
 {
     Key
 }

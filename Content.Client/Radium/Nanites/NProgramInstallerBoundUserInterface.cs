@@ -1,7 +1,6 @@
 using Content.Shared.Access.Systems;
-using Content.Shared.CriminalRecords;
-using Content.Shared.CriminalRecords.Components;
 using Content.Shared.Radium.Nanites;
+using Content.Shared.Radium.Nanites.Components;
 using Content.Shared.StationRecords;
 using Robust.Client.Player;
 using Robust.Shared.Prototypes;
@@ -28,17 +27,18 @@ public sealed class NProgramInstallerConsoleBoundUserInterface : BoundUserInterf
     {
         base.Open();
 
-        var comp = EntMan.GetComponent<CriminalRecordsConsoleComponent>(Owner);
+        var comp = EntMan.GetComponent<NProgramInstallerConsoleComponent>(Owner);
 
         _window = new(Owner, comp.MaxStringLength, _playerManager, _proto, _random, _accessReader);
         _window.OnKeySelected += key =>
             SendMessage(new SelectStationRecord(key));
         _window.OnFiltersChanged += (type, filterValue) =>
             SendMessage(new SetStationRecordFilter(type, filterValue));
+        /*
         _window.OnStatusSelected += status =>
             SendMessage(new CriminalRecordChangeStatus(status, null));
         _window.OnDialogConfirmed += (status, reason) =>
-            SendMessage(new CriminalRecordChangeStatus(status, reason));
+            SendMessage(new CriminalRecordChangeStatus(status, reason)); */
        /*  _window.OnHistoryUpdated += UpdateHistory;
         _window.OnHistoryClosed += () => _historyWindow?.Close();
         _window.OnClose += Close;
