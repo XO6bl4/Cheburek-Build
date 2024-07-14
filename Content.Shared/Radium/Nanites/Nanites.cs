@@ -7,5 +7,5 @@ namespace Content.Shared.Radium.Nanites;
 /// Criminal record for a crewmember.
 /// Can be viewed and edited in a criminal records console by security.
 /// </summary>
-[Serializable, NetSerializable, DataRecord]
+[Serializable, NetSerializable]
 public sealed class Nanites;
