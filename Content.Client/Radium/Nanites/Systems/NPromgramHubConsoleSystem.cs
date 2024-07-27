@@ -2,4 +2,4 @@ using Content.Shared.Radium.Nanites.Systems;
 
 namespace Content.Client.Radium.Nanites.Systems;
 
-public sealed class NProgramInstallerConsoleSystem : SharedNProgramInstallerConsoleSystem;
+public sealed class NProgramHubConsoleSystem : SharedNProgramHubConsoleSystem;
