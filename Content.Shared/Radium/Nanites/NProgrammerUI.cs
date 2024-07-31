@@ -4,26 +4,26 @@ using Robust.Shared.Serialization;
 namespace Content.Shared.Radium.Nanites;
 
 [Serializable, NetSerializable]
-public enum NProgramHubConsoleKey : byte
+public enum NProgrammerConsoleKey : byte
 {
     Key,
 }
 
 [Serializable, NetSerializable]
-public sealed class NProgramHubConsoleState : BoundUserInterfaceState
+public sealed class NProgrammerConsoleState : BoundUserInterfaceState
 {
 
 
     public Nanites? Nanite = null;
     public readonly Dictionary<uint, string>? NanitesListing;
 
-    public NProgramHubConsoleState(Dictionary<uint, string>? nanitesListing)
+    public NProgrammerConsoleState(Dictionary<uint, string>? nanitesListing)
     {
         NanitesListing = nanitesListing;
     }
 
 
-    public NProgramHubConsoleState() : this(null)
+    public NProgrammerConsoleState() : this(null)
     {
     }
 

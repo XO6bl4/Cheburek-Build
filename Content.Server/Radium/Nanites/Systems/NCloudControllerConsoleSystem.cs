@@ -15,7 +15,7 @@ namespace Content.Server.Radium.Nanites.Systems;
 /// <summary>
 /// Handles all UI for criminal records console
 /// </summary>
-public sealed class NProgramHubConsoleSystem : SharedNProgramHubConsoleSystem
+public sealed class NCloudControllerConsoleSystem : SharedNanitesConsoleSystem
 {
     [Dependency] private readonly AccessReaderSystem _access = default!;
     [Dependency] private readonly NanitesSystem _nanites = default!;
@@ -28,20 +28,25 @@ public sealed class NProgramHubConsoleSystem : SharedNProgramHubConsoleSystem
 
     public override void Initialize()
     {
-            SubscribeLocalEvent<BoundUIOpenedEvent>(UpdateUserInterface);
+        Subs.BuiEvents<NCloudControllerConsoleComponent>(NCloudControllerConsoleKey.Key,
+            subs =>
+            {
+                subs.Event<BoundUIOpenedEvent>(UpdateUserInterface);
+
+            });
     }
 
-    private void UpdateUserInterface<T>(Entity<NProgramHubConsoleComponent> ent, ref T args)
+    private void UpdateUserInterface<T>(Entity<NCloudControllerConsoleComponent> ent, ref T args)
     {
         UpdateUserInterface(ent);
     }
 
-    private void UpdateUserInterface(Entity<NProgramHubConsoleComponent> ent)
+    private void UpdateUserInterface(Entity<NCloudControllerConsoleComponent> ent)
     {
         var (uid, console) = ent;
         var owningStation = _station.GetOwningStation(uid);
 
-        if (!TryComp<NProgramHubConsoleComponent>(owningStation, out var stationRecords))
+        if (!TryComp<NCloudControllerConsoleComponent>(owningStation, out var stationRecords))
         {
             return;
         }

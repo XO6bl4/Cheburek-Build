@@ -1,16 +1,16 @@
 - type: entity
   parent: BaseComputer
-  id: ComputerNanitesProgramInstaller
-  name: nanites program installer console
+  id: ComputerNanitesProgramHub
+  name: nanites program hub console
   description: sex with bomb
   components:
-  - type: NProgramInstallerConsole
+  - type: NProgramHubConsole
   - type: UserInterface
     interfaces:
-      enum.NProgramInstallerConsoleKey.Key:
-        type: NProgramInstallerConsoleBoundUserInterface
+      enum.NProgramHubConsoleKey.Key:
+        type: NProgramHubConsoleBoundUserInterface
   - type: ActivatableUI
-    key: enum.NProgramInstallerConsoleKey.Key
+    key: enum.NProgramHubConsoleKey.Key
   - type: Sprite
     layers:
     - map: ["computerLayerBody"]
@@ -18,9 +18,93 @@
     - map: ["computerLayerKeyboard"]
       state: generic_keyboard
     - map: ["computerLayerScreen"]
-      state: explosive
+      state: recharge_comp
     - map: ["computerLayerKeys"]
-      state: security_key
+      state: tech_key
+  - type: PointLight
+    radius: 1.5
+    energy: 1.6
+    color: "#1f8c28"
+
+- type: entity
+  parent: BaseComputer
+  id: ComputerNanitesProgrammer
+  name: nanites programmer console
+  description: sex with bomb
+  components:
+  - type: NProgrammerConsole
+  - type: UserInterface
+    interfaces:
+      enum.NProgrammerConsoleKey.Key:
+        type: NProgrammerConsoleBoundUserInterface
+  - type: ActivatableUI
+    key: enum.NProgrammerConsoleKey.Key
+  - type: Sprite
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: recharge_comp
+    - map: ["computerLayerKeys"]
+      state: tech_key
+  - type: PointLight
+    radius: 1.5
+    energy: 1.6
+    color: "#1f8c28"
+
+- type: entity
+  parent: BaseComputer
+  id: ComputerNanitesCloudController
+  name: nanites cloud controller console
+  description: sex with bomb
+  components:
+  - type: NCloudControllerConsole
+  - type: UserInterface
+    interfaces:
+      enum.NCloudControllerConsoleKey.Key:
+        type: NCloudControllerConsoleBoundUserInterface
+  - type: ActivatableUI
+    key: enum.NCloudControllerConsoleKey.Key
+  - type: Sprite
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: recharge_comp
+    - map: ["computerLayerKeys"]
+      state: tech_key
+  - type: PointLight
+    radius: 1.5
+    energy: 1.6
+    color: "#1f8c28"
+
+- type: entity
+  parent: BaseComputer
+  id: ComputerNanitesChamberController
+  name: nanites chamber controller console
+  description: sex with bomb
+  components:
+  - type: NChamberControllerConsole
+  - type: UserInterface
+    interfaces:
+      enum.NChamberControllerConsoleKey.Key:
+        type: NChamberControllerConsoleBoundUserInterface
+  - type: ActivatableUI
+    key: enum.NChamberControllerConsoleKey.Key
+  - type: Sprite
+    layers:
+    - map: ["computerLayerBody"]
+      state: computer
+    - map: ["computerLayerKeyboard"]
+      state: generic_keyboard
+    - map: ["computerLayerScreen"]
+      state: recharge_comp
+    - map: ["computerLayerKeys"]
+      state: tech_key
   - type: PointLight
     radius: 1.5
     energy: 1.6

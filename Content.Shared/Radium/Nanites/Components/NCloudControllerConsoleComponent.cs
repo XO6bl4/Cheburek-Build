@@ -10,7 +10,7 @@ namespace Content.Shared.Radium.Nanites.Components;
 /// </summary>
 [RegisterComponent]
 [Access(typeof(SharedNanitesConsoleSystem))]
-public sealed partial class NProgramHubConsoleComponent : Component
+public sealed partial class NCloudControllerConsoleComponent : Component
 {
     [DataField]
     public uint? ActiveKey;
