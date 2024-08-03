@@ -44,7 +44,7 @@ public sealed partial class NanitesComponent : Component
     /// <summary>
     ///     Don't let PowerLevel go above this value.
     /// </summary>
-    [ViewVariables(VVAccess.ReadOnly), AutoNetworkedField]
+    [ViewVariables(VVAccess.ReadWrite), AutoNetworkedField]
     public float PowerLevelMax = PowerThresholds[NanitesThreshold.Max];
 
     /// <summary>
@@ -74,7 +74,7 @@ public sealed partial class NanitesComponent : Component
 
     public static readonly Dictionary<NanitesThreshold, float> PowerThresholds = new()
     {
-        { NanitesThreshold.Max, 250.0f },
+        { NanitesThreshold.Max, 300.0f },
         { NanitesThreshold.Great, 200.0f },
         { NanitesThreshold.Good, 150.0f },
         { NanitesThreshold.Okay, 100.0f },

@@ -1,0 +1,1 @@
+nanites-powerlevel-examined = У вас {$power}/{$powerMax} нанитов в теле.

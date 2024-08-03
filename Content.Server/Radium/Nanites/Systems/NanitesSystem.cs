@@ -41,10 +41,9 @@ public sealed class NanitesSystem : EntitySystem
         // Show exact values for yourself
         if (args.Examined == args.Examiner)
         {
-            args.PushMarkup(Loc.GetString("shadowkin-power-examined-self",
+            args.PushMarkup(Loc.GetString("nanites-powerlevel-examined",
                 ("power", (int) component.NanitesLevel),
-                ("powerMax", component.PowerLevelMax),
-                ("powerType", powerType)
+                ("powerMax", component.PowerLevelMax)
             ));
         }
     }
