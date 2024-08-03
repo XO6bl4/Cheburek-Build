@@ -44,6 +44,7 @@ public sealed class NanitesPowerSystem : EntitySystem
         }
         // Return the name of the threshold
         _powerDictionary.TryGetValue(result, out var powerType);
+        // dont even ask. TODO: implement rollback
         powerType ??= "norm";
         return powerType;
     }
@@ -52,11 +53,8 @@ public sealed class NanitesPowerSystem : EntitySystem
     private const string ShadowkinPower = "ShadowkinPower";
 
     /// <summary>
-    ///    Sets the alert level of a shadowkin.
+    ///    Sets the alert level of a nanites powerlevel.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="enabled">Enable the alert or not</param>
-    /// <param name="powerLevel">The current power level.</param>
     public void UpdateAlert(EntityUid uid, bool enabled, float? powerLevel = null)
     {
         if (!enabled || powerLevel == null)
@@ -65,11 +63,9 @@ public sealed class NanitesPowerSystem : EntitySystem
             return;
         }
 
-        // Get shadowkin component
+        // Get nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
         // 250 / 7 ~= 35
         // Pwr / 35 ~= (0-7)
@@ -84,11 +80,9 @@ public sealed class NanitesPowerSystem : EntitySystem
     /// <summary>
     ///     Tries to update the power level of a shadowkin based on an amount of seconds.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="frameTime">The time since the last update in seconds.</param>
     public bool TryUpdatePowerLevel(EntityUid uid, float frameTime)
     {
-        // Check if the entity has a shadowkin component
+        // Check if the entity has a nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
             return false;
 
@@ -103,19 +97,15 @@ public sealed class NanitesPowerSystem : EntitySystem
     }
 
     /// <summary>
-    ///     Updates the power level of a shadowkin based on an amount of seconds.
+    ///     Updates the nanites power level based on an amount of seconds.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="frameTime">The time since the last update in seconds.</param>
     public void UpdatePowerLevel(EntityUid uid, float frameTime)
     {
-        // Get shadowkin component
+        // Get nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
-        // Calculate new power level (P = P + t * G * M)
+        // Calculate new power level
         var newPowerLevel = component.NanitesLevel + frameTime * component.PowerLevelGain * component.PowerLevelGainMultiplier;
 
         // Clamp power level using clamp function
@@ -127,13 +117,11 @@ public sealed class NanitesPowerSystem : EntitySystem
 
 
     /// <summary>
-    ///     Tries to add to the power level of a shadowkin.
+    ///     Tries to add to the power level for nanites handler
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="amount">The amount to add to the power level.</param>
     public bool TryAddPowerLevel(EntityUid uid, float amount)
     {
-        // Check if the entity has a shadowkin component
+        // Check if the entity has a nanites component
         if (!TryComp<NanitesComponent>(uid, out _))
             return false;
 
@@ -144,17 +132,13 @@ public sealed class NanitesPowerSystem : EntitySystem
     }
 
     /// <summary>
-    ///     Adds to the power level of a shadowkin.
+    ///     Adds to the nanites power level.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="amount">The amount to add to the power level.</param>
     public void AddPowerLevel(EntityUid uid, float amount)
     {
         // Get shadowkin component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
         // Get new power level
         var newPowerLevel = component.NanitesLevel + amount;
@@ -168,17 +152,13 @@ public sealed class NanitesPowerSystem : EntitySystem
 
 
     /// <summary>
-    ///     Sets the power level of a shadowkin.
+    ///     Sets the nanites power level.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="newPowerLevel">The new power level.</param>
     public void SetPowerLevel(EntityUid uid, float newPowerLevel)
     {
-        // Get shadowkin component
+        // Get nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
         // Clamp power level using clamp function
         newPowerLevel = Math.Clamp(newPowerLevel, component.PowerLevelMin, component.PowerLevelMax);

@@ -47,8 +47,6 @@ public abstract class SharedNanitesSystem : EntitySystem
     {
         base.Initialize();
 
-        //InitializeModifier();
-
         SubscribeLocalEvent<NanitesComponent, ComponentStartup>(OnStartup);
         SubscribeLocalEvent<NanitesComponent, ComponentShutdown>(OnShutdown);
 
@@ -58,7 +56,7 @@ public abstract class SharedNanitesSystem : EntitySystem
     private void OnNanitesHandleState(EntityUid uid, NanitesComponent component, ref AfterAutoHandleStateEvent args)
     {
         if (component.Critical)
-            EnterNanitesCooldown(uid, component);
+            EnterNanitesCooldown(uid, component); // so you go 10 second cooldown if you use all of your nanites
         else
         {
             if (component.NanitesDamage > 0f)
@@ -93,7 +91,7 @@ public abstract class SharedNanitesSystem : EntitySystem
 
     public bool TryTakeNanites(EntityUid uid, float takenNanites, NanitesComponent? component = null, EntityUid? source = null, EntityUid? with = null)
     {
-        // Something that has no Stamina component automatically passes stamina checks
+        // Something that has no Nanites component automatically passes nanites checks
         if (!Resolve(uid, ref component, false))
             return true;
 
@@ -102,21 +100,23 @@ public abstract class SharedNanitesSystem : EntitySystem
 
         var oldLevel = component.NanitesLevel;
 
-        if (oldLevel - takenNanites <= component.PowerLevelMin)
+        // but should we do this???
+        if (oldLevel - takenNanites < component.PowerLevelMin)
             return false;
 
         TakeNanites(uid, takenNanites, component, oldLevel);
         return true;
     }
 
-    public void TakeNanites(EntityUid uid, float takenNanites, NanitesComponent? component, float oldLevel)
+    public void TakeNanites(EntityUid uid, float takenNanites, NanitesComponent component, float oldLevel)
     {
         var newLevel = oldLevel - takenNanites;
+        component.NanitesLevel = newLevel; // always use TryTakeNanites so doesnt mess up!
     }
 
     public bool TryAddPowerLevel(EntityUid uid, float amount)
     {
-        // Check if the entity has a shadowkin component
+        // Check if the entity has a Nanites component
         if (!TryComp<NanitesComponent>(uid, out _))
             return false;
 
@@ -127,17 +127,13 @@ public abstract class SharedNanitesSystem : EntitySystem
     }
 
     /// <summary>
-    ///     Adds to the power level of a shadowkin.
+    ///     Adds to the power level for nanites.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="amount">The amount to add to the power level.</param>
     public void AddPowerLevel(EntityUid uid, float amount)
     {
-        // Get shadowkin component
+        // Get Nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
         // Get new power level
         var newPowerLevel = component.NanitesLevel + amount;
@@ -153,15 +149,11 @@ public abstract class SharedNanitesSystem : EntitySystem
     /// <summary>
     ///     Sets the power level of a shadowkin.
     /// </summary>
-    /// <param name="uid">The entity uid.</param>
-    /// <param name="newPowerLevel">The new power level.</param>
     public void SetPowerLevel(EntityUid uid, float newPowerLevel)
     {
-        // Get shadowkin component
+        // Get nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
         // Clamp power level using clamp function
         newPowerLevel = Math.Clamp(newPowerLevel, component.PowerLevelMin, component.PowerLevelMax);
@@ -178,11 +170,9 @@ public abstract class SharedNanitesSystem : EntitySystem
             return;
         }
 
-        // Get shadowkin component
+        // Get nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
-        {
             return;
-        }
 
         // 250 / 7 ~= 35
         // Pwr / 35 ~= (0-7)
@@ -206,63 +196,43 @@ public abstract class SharedNanitesSystem : EntitySystem
 
         while (query.MoveNext(out var uid, out _))
         {
-            // Just in case we have active but not stamina we'll check and account for it.
+            // I'll leave this code here just in case
             if (!stamQuery.TryGetComponent(uid, out var comp) ||
                 comp.NanitesDamage <= 0f && !comp.Critical)
             {
-                RemComp<ActiveNanitesComponent>(uid);
                 continue;
             }
-
-            // Shouldn't need to consider paused time as we're only iterating non-paused stamina components.
-            var nextUpdate = comp.NextUpdate;
-
-            if (nextUpdate > curTime)
-                continue;
-
-            comp.NextUpdate += TimeSpan.FromSeconds(1f);
             Dirty(uid, comp);
         }
     }
 
     private void EnterNanitesCooldown(EntityUid uid, NanitesComponent? component = null)
     {
-        if (!Resolve(uid, ref component) ||
-            component.Critical)
-        {
+        if (!Resolve(uid, ref component) || component.Critical)
             return;
-        }
 
         component.Critical = true;
         component.NanitesDamage = component.PowerLevelMax;
 
-        // Give them buffer before being able to be re-stunned
-        component.NextUpdate = _timing.CurTime + component.NanitesCooldown;
         EnsureComp<ActiveNanitesComponent>(uid);
         Dirty(uid, component);
-        _adminLogger.Add(LogType.Stamina, LogImpact.Medium, $"{ToPrettyString(uid):user} entered stamina crit");
     }
 
     private void ExitNanitesCooldown(EntityUid uid, NanitesComponent? component = null)
     {
-        if (!Resolve(uid, ref component) ||
-            !component.Critical)
-        {
+        if (!Resolve(uid, ref component) || !component.Critical)
             return;
-        }
 
         component.Critical = false;
         component.NanitesDamage = 0f;
-        component.NextUpdate = _timing.CurTime;
         SetNanitesAlert(uid, component);
         RemComp<ActiveNanitesComponent>(uid);
         Dirty(uid, component);
-        _adminLogger.Add(LogType.Stamina, LogImpact.Low, $"{ToPrettyString(uid):user} recovered from stamina crit");
     }
 
     public bool TryUpdatePowerLevel(EntityUid uid, float frameTime)
     {
-        // Check if the entity has a shadowkin component
+        // Check if the entity has a nanites component
         if (!TryComp<NanitesComponent>(uid, out var component))
             return false;
 
@@ -271,20 +241,15 @@ public abstract class SharedNanitesSystem : EntitySystem
             return false;
 
         // Set the new power level
-        UpdatePowerLevel(uid, frameTime);
+        UpdatePowerLevel(uid, frameTime, component);
 
         return true;
     }
 
-    public void UpdatePowerLevel(EntityUid uid, float frameTime)
+    public void UpdatePowerLevel(EntityUid uid, float frameTime, NanitesComponent component)
     {
-        // Get shadowkin component
-        if (!TryComp<NanitesComponent>(uid, out var component))
-        {
-            return;
-        }
 
-        // Calculate new power level (P = P + t * G * M)
+        // Calculating new power lowel.
         var newPowerLevel = component.NanitesLvl + frameTime * component.PowerLevelGain * component.PowerLevelGainMultiplier;
 
         // Clamp power level using clamp function

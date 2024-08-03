@@ -23,13 +23,6 @@ public sealed partial class NanitesComponent : Component
     [ViewVariables(VVAccess.ReadWrite), DataField]
     public TimeSpan NanitesCooldown = TimeSpan.FromSeconds(10);
 
-    /// <summary>
-    /// To avoid continuously updating our data we track the last time we updated so we can extrapolate our current stamina.
-    /// </summary>
-    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoNetworkedField]
-    [AutoPausedField]
-    public TimeSpan NextUpdate = TimeSpan.Zero;
-
     [DataField]
     public ProtoId<AlertPrototype> NanitesAlert = "Nanites";
 
@@ -48,15 +41,15 @@ public sealed partial class NanitesComponent : Component
     public float PowerLevelMax = PowerThresholds[NanitesThreshold.Max];
 
     /// <summary>
-    ///     Blackeyes if PowerLevel is this value.
+    ///     Dont let PowerLevel go below this value.
     /// </summary>
     [ViewVariables(VVAccess.ReadOnly), AutoNetworkedField]
     public float PowerLevelMin = PowerThresholds[NanitesThreshold.Min];
 
     /// <summary>
-    ///     How much energy is gained per second.
+    ///     How much nanites is gained per second.
     /// </summary>
-    [ViewVariables(VVAccess.ReadWrite), AutoNetworkedField]
+    [ViewVariables(VVAccess.ReadOnly), AutoNetworkedField]
     public float PowerLevelGain = 0.75f;
 
     /// <summary>

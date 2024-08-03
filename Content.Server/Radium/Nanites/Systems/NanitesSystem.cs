@@ -33,12 +33,7 @@ public sealed class NanitesSystem : EntitySystem
 
     private void OnExamine(EntityUid uid, NanitesComponent component, ExaminedEvent args)
     {
-        if (!args.IsInDetailsRange)
-            return;
-
-        var powerType = _power.GetLevelName(component.NanitesLevel);
-
-        // Show exact values for yourself
+        // so if we examine ourselves we get a power level of nanites
         if (args.Examined == args.Examiner)
         {
             args.PushMarkup(Loc.GetString("nanites-powerlevel-examined",
@@ -51,6 +46,8 @@ public sealed class NanitesSystem : EntitySystem
     private void OnInit(EntityUid uid, NanitesComponent component, ComponentInit args)
     {
         if (component.NanitesLevel <= NanitesComponent.PowerThresholds[NanitesThreshold.Min] + 1f)
+            // ensure that we dont have 0 nanites at the start.
+            // potentially a disaster (mass abuse)!!!
             _power.SetPowerLevel(uid, NanitesComponent.PowerThresholds[NanitesThreshold.Good]);
 
         _power.UpdateAlert(uid, true, component.NanitesLevel);
@@ -68,7 +65,7 @@ public sealed class NanitesSystem : EntitySystem
 
         var query = EntityQueryEnumerator<NanitesComponent>();
 
-        // Update power level for all shadowkin
+        // Update power level for all nanite users
         while (query.MoveNext(out var uid, out var nanites))
         {
             var oldPowerLevel = _power.GetLevelName(nanites.NanitesLevel);
@@ -78,8 +75,6 @@ public sealed class NanitesSystem : EntitySystem
             {
                 Dirty(uid, nanites);
             }
-
-            // I can't figure out how to get this to go to the 100% filled state in the above if statement 😢
             _power.UpdateAlert(uid, true, nanites.NanitesLevel);
         }
     }
