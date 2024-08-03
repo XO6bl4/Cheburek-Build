@@ -14,11 +14,8 @@ public sealed partial class NanitesComponent : Component
     [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
     public bool Critical;
 
-    [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
-    public float Nanites;
-
-    [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
-    public float CritThreshold = 100f;
+    // [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
+    // public float CritThreshold = 100f;
 
     [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
     public float NanitesDamage;
@@ -73,12 +70,6 @@ public sealed partial class NanitesComponent : Component
     /// </summary>
     [ViewVariables(VVAccess.ReadWrite), AutoNetworkedField]
     public bool PowerLevelGainEnabled = true;
-
-    /// <summary>
-    ///     Whether they are a blackeye.
-    /// </summary>
-    [ViewVariables(VVAccess.ReadWrite), AutoNetworkedField]
-    public bool Blackeye = false;
 
 
     public static readonly Dictionary<NanitesThreshold, float> PowerThresholds = new()

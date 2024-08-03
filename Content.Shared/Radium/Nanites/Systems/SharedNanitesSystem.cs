@@ -40,6 +40,9 @@ public abstract class SharedNanitesSystem : EntitySystem
     [Dependency] private readonly SharedStunSystem _stunSystem = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
 
+    [ValidatePrototypeId<AlertPrototype>]
+    private const string NanitesAlert = "NanitesAlert";
+
     public override void Initialize()
     {
         base.Initialize();
@@ -84,64 +87,110 @@ public abstract class SharedNanitesSystem : EntitySystem
         if (!Resolve(uid, ref component, false) || component.Deleted)
             return;
 
-        var severity = ContentHelpers.RoundToLevels(MathF.Max(0f, component.Nanites - component.CritThreshold), component.CritThreshold, 7);
+        var severity = ContentHelpers.RoundToLevels(MathF.Max(0f, component.NanitesLevel - component.PowerLevelMax), component.PowerLevelMax, 7);
         _alerts.ShowAlert(uid, component.NanitesAlert, (short) severity);
     }
 
-    public bool TryTakeNanites(EntityUid uid, float value, NanitesComponent? component = null, EntityUid? source = null, EntityUid? with = null)
+    public bool TryTakeNanites(EntityUid uid, float takenNanites, NanitesComponent? component = null, EntityUid? source = null, EntityUid? with = null)
     {
         // Something that has no Stamina component automatically passes stamina checks
         if (!Resolve(uid, ref component, false))
             return true;
 
-        var oldStam = component.NanitesDamage;
-
-        if (oldStam + value > component.CritThreshold || component.Critical)
+        if (uid == null || takenNanites == null || takenNanites == 0 || component == null)
             return false;
 
-        TakeNanitesDamage(uid, value, component, source, with, visual: false);
+        var oldLevel = component.NanitesLevel;
+
+        if (oldLevel - takenNanites <= component.PowerLevelMin)
+            return false;
+
+        TakeNanites(uid, takenNanites, component, oldLevel);
         return true;
     }
 
-    public void TakeNanitesDamage(EntityUid uid, float value, NanitesComponent? component = null,
-        EntityUid? source = null, EntityUid? with = null, bool visual = true, SoundSpecifier? sound = null, bool chaosDamage = false)
+    public void TakeNanites(EntityUid uid, float takenNanites, NanitesComponent? component, float oldLevel)
     {
-        if (!Resolve(uid, ref component, false))
-            return;
-
-        // Have we already reached the point of max stamina damage?
-        if (component.Critical)
-            return;
-
-
-        var oldDamage = component.NanitesDamage;
-        component.NanitesDamage = MathF.Max(0f, component.NanitesDamage + value);
-
-        SetNanitesAlert(uid, component);
-        Dirty(uid, component);
-
-        if (value <= 0)
-            return;
-
-        if (visual)
-        {
-            _color.RaiseEffect(Color.Aqua, new List<EntityUid>() { uid }, Filter.Pvs(uid, entityManager: EntityManager));
-        }
-
-        if (_net.IsServer)
-        {
-            _audio.PlayPvs(sound, uid);
-        }
+        var newLevel = oldLevel - takenNanites;
     }
 
-    public float GetNanitesDamage(EntityUid uid, NanitesComponent? component = null)
+    public bool TryAddPowerLevel(EntityUid uid, float amount)
     {
-        if (!Resolve(uid, ref component))
-            return 0f;
+        // Check if the entity has a shadowkin component
+        if (!TryComp<NanitesComponent>(uid, out _))
+            return false;
 
-        var curTime = _timing.CurTime;
-        var pauseTime = _metadata.GetPauseTime(uid);
-        return MathF.Max(0f, component.NanitesDamage - MathF.Max(0f, (float) (curTime - (component.NextUpdate + pauseTime)).TotalSeconds));
+        // Set the new power level
+        AddPowerLevel(uid, amount);
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Adds to the power level of a shadowkin.
+    /// </summary>
+    /// <param name="uid">The entity uid.</param>
+    /// <param name="amount">The amount to add to the power level.</param>
+    public void AddPowerLevel(EntityUid uid, float amount)
+    {
+        // Get shadowkin component
+        if (!TryComp<NanitesComponent>(uid, out var component))
+        {
+            return;
+        }
+
+        // Get new power level
+        var newPowerLevel = component.NanitesLevel + amount;
+
+        // Clamp power level using clamp function
+        newPowerLevel = Math.Clamp(newPowerLevel, component.PowerLevelMin, component.PowerLevelMax);
+
+        // Set the new power level
+        SetPowerLevel(uid, newPowerLevel);
+    }
+
+
+    /// <summary>
+    ///     Sets the power level of a shadowkin.
+    /// </summary>
+    /// <param name="uid">The entity uid.</param>
+    /// <param name="newPowerLevel">The new power level.</param>
+    public void SetPowerLevel(EntityUid uid, float newPowerLevel)
+    {
+        // Get shadowkin component
+        if (!TryComp<NanitesComponent>(uid, out var component))
+        {
+            return;
+        }
+
+        // Clamp power level using clamp function
+        newPowerLevel = Math.Clamp(newPowerLevel, component.PowerLevelMin, component.PowerLevelMax);
+
+        // Set the new power level
+        component.NanitesLvl = newPowerLevel;
+    }
+
+    public void UpdateAlert(EntityUid uid, bool enabled, float? powerLevel = null)
+    {
+        if (!enabled || powerLevel == null)
+        {
+            _alerts.ClearAlert(uid, NanitesAlert);
+            return;
+        }
+
+        // Get shadowkin component
+        if (!TryComp<NanitesComponent>(uid, out var component))
+        {
+            return;
+        }
+
+        // 250 / 7 ~= 35
+        // Pwr / 35 ~= (0-7)
+        // Round to ensure (0-7)
+        var power = Math.Clamp(Math.Round(component.NanitesLevel / 35), 0, 7);
+
+        // Set the alert level
+        _alerts.ShowAlert(uid, NanitesAlert, (short) power);
     }
 
     public override void Update(float frameTime)
@@ -185,7 +234,7 @@ public abstract class SharedNanitesSystem : EntitySystem
         }
 
         component.Critical = true;
-        component.NanitesDamage = component.CritThreshold;
+        component.NanitesDamage = component.PowerLevelMax;
 
         // Give them buffer before being able to be re-stunned
         component.NextUpdate = _timing.CurTime + component.NanitesCooldown;
@@ -209,6 +258,40 @@ public abstract class SharedNanitesSystem : EntitySystem
         RemComp<ActiveNanitesComponent>(uid);
         Dirty(uid, component);
         _adminLogger.Add(LogType.Stamina, LogImpact.Low, $"{ToPrettyString(uid):user} recovered from stamina crit");
+    }
+
+    public bool TryUpdatePowerLevel(EntityUid uid, float frameTime)
+    {
+        // Check if the entity has a shadowkin component
+        if (!TryComp<NanitesComponent>(uid, out var component))
+            return false;
+
+        // Check if power gain is enabled
+        if (!component.PowerLevelGainEnabled)
+            return false;
+
+        // Set the new power level
+        UpdatePowerLevel(uid, frameTime);
+
+        return true;
+    }
+
+    public void UpdatePowerLevel(EntityUid uid, float frameTime)
+    {
+        // Get shadowkin component
+        if (!TryComp<NanitesComponent>(uid, out var component))
+        {
+            return;
+        }
+
+        // Calculate new power level (P = P + t * G * M)
+        var newPowerLevel = component.NanitesLvl + frameTime * component.PowerLevelGain * component.PowerLevelGainMultiplier;
+
+        // Clamp power level using clamp function
+        newPowerLevel = Math.Clamp(newPowerLevel, component.PowerLevelMin, component.PowerLevelMax);
+
+        // Set the new power level
+        SetPowerLevel(uid, newPowerLevel);
     }
 
 }
