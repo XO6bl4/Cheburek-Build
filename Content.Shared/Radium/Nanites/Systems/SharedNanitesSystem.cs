@@ -36,9 +36,6 @@ public abstract class SharedNanitesSystem : EntitySystem
     [Dependency] private readonly ISharedAdminLogManager _adminLogger = default!;
     [Dependency] private readonly AlertsSystem _alerts = default!;
     [Dependency] private readonly MetaDataSystem _metadata = default!;
-    [Dependency] private readonly SharedColorFlashEffectSystem _color = default!;
-    [Dependency] private readonly SharedStunSystem _stunSystem = default!;
-    [Dependency] private readonly SharedAudioSystem _audio = default!;
 
     [ValidatePrototypeId<AlertPrototype>]
     private const string NanitesAlert = "NanitesAlert";
