@@ -18,7 +18,7 @@ public sealed partial class NanitesComponent : Component
     // public float CritThreshold = 100f;
 
     [ViewVariables(VVAccess.ReadWrite), DataField, AutoNetworkedField]
-    public float NanitesDamage;
+    public float NanitesDamage; // actually i dont even remember what this is
 
     [ViewVariables(VVAccess.ReadWrite), DataField]
     public TimeSpan NanitesCooldown = TimeSpan.FromSeconds(10);
@@ -49,7 +49,7 @@ public sealed partial class NanitesComponent : Component
     /// <summary>
     ///     How much nanites is gained per second.
     /// </summary>
-    [ViewVariables(VVAccess.ReadOnly), AutoNetworkedField]
+    [ViewVariables(VVAccess.ReadWrite), AutoNetworkedField]
     public float PowerLevelGain = 0.75f;
 
     /// <summary>

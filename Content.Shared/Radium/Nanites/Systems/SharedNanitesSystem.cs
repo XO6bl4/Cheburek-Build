@@ -144,7 +144,7 @@ public abstract class SharedNanitesSystem : EntitySystem
 
 
     /// <summary>
-    ///     Sets the power level of a shadowkin.
+    ///     Sets the nanites power level.
     /// </summary>
     public void SetPowerLevel(EntityUid uid, float newPowerLevel)
     {
